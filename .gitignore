@@ -1,0 +1,8 @@
+venv
+data
+pf.db*
+__pycache__
+node_modules
+static/dist
+package-lock.json
+.parcel-cache

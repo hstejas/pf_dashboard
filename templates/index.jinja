@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html class="theme-light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/index.css') }}">
+</head>
+
+<body>
+    <div class="section">
+        <div class="columns">
+            <div class="column is-2">
+                <div class="field-group">
+                    <div class="field">
+                        <label class="label">Account Number</label>
+                        <div class="control has-icons-left">
+                            <div class="select">
+                                <select id="account" required>
+                                    <option hidden selected>Select Account Number</option>
+                                    {% for account in accounts %}
+                                    <option value="{{account.account_number}}">
+                                        {{account.bank_name}} - {{account.account_number}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <span class="icon is-left has-text-primary">
+                                <i class="fa-solid fa-circle-user"></i>
+                            </span>
+                        </div>
+                        <div class="field">
+                            <label class="label">Filter keywords</label>
+                            <div class="control">
+                                <textarea id="filters" class="textarea has-fixed-size"
+                                    placeholder="'|' separated keywords to filter by. e.g 'amazon|flipkart|water'"></textarea>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <button id="refresh" class="button is-primary is-fullwidth">Refresh</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="section">
+                    <canvas id="myChart"></canvas>
+                </div>
+                <div class="section">
+                    <div id="wrapper"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='dist/index.js') }}"></script>
+</body>
+
+</html>
