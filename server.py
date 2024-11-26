@@ -33,14 +33,12 @@ def index():
     return render_template("index.jinja", accounts=accounts)
 
 
-@app.route("/accounts")
+@app.route("/accounts/")
 def accounts():
-    res = list(Account.select().dicts())
-    df = pd.DataFrame(data=res)
-    return df.to_html()
+    return render_template("accounts.jinja")
 
 
-@app.route("/transactions")
+@app.route("/transactions/")
 def transactions():
     account = request.args.get("account")
     filters = request.args.get("filters", "")
@@ -63,6 +61,14 @@ def transactions():
     df = filter_description(df, filters)
 
     return df.to_html()
+
+
+@app.route("/api/accounts/")
+def api_accounts():
+    # res = list(Account.select().dicts())
+    res = Account.get_accounts_and_statements()
+    # df = pd.DataFrame(data=res)
+    return res
 
 
 def extrapolate_balance_for_loan(accounts, balance_df, samples=12):
@@ -92,12 +98,12 @@ def extrapolate_balance_for_loan(accounts, balance_df, samples=12):
     return None
 
 
-@app.route("/transactions/plot")
-def transactions_plot():
+@app.route("/api/transactions/")
+def api_transactions():
     account = request.args.get("account")
     filters = request.args.get("filters", "")
 
-    accounts = ",".join(
+    accounts = ", ".join(
         [
             f"{acc.account_number} - {acc.description}"
             for acc in Account.select().where(Account.account_number ** f"%{account}%")

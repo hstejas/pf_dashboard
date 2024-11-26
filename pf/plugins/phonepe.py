@@ -5,6 +5,7 @@ import pypdf
 import logging as log
 from io import StringIO
 from .utils import get_passwords
+from datetime import datetime
 
 BANK_NAME = "Phone Pe"
 ACC_PREFIX = "phonepe"
@@ -35,12 +36,45 @@ def decrypt_if_required(pdf: pypdf.PdfReader, file: Path):
             raise Exception(f"Password is required for {file}")
 
 
+def get_metadata(file: Path) -> dict:
+    account = {
+        Account.bank_name.name: BANK_NAME,
+        Account.description.name: "UPI",
+    }
+    acc_number = None
+    start_date = None
+    end_date = None
+    with pypdf.PdfReader(file) as pdf:
+        decrypt_if_required(pdf, file)
+
+        if len(pdf.pages) == 0:
+            log.error(f"Empty pdf file {file}")
+            raise Exception(f"Empty odf file {file}")
+
+        text = pdf.pages[0].extract_text(extraction_mode="layout")
+
+        sio = StringIO(text)
+        line = sio.readline().strip()
+        line = line.replace("Transaction Statement for ", "")
+        acc_number = f"{ACC_PREFIX}_{line}"
+        account[Account.account_number.name] = acc_number
+        account[Account.primary_holder.name] = line
+        period = sio.readline().strip()  # skip second line
+        (s, e) = period.split(" - ")
+        start_date = datetime.strptime(s.strip(), "%b %d, %Y")
+        end_date = datetime.strptime(e.strip(), "%b %d, %Y")
+
+    return (account, start_date, end_date)
+
+
 def import_statement(file: Path) -> dict:
     account = {
         Account.bank_name.name: BANK_NAME,
         Account.description.name: "UPI",
     }
     acc_number = None
+    start_date = None
+    end_date = None
     df = pd.DataFrame()
     with pypdf.PdfReader(file) as pdf:
         decrypt_if_required(pdf, file)
@@ -62,7 +96,10 @@ def import_statement(file: Path) -> dict:
                 acc_number = f"{ACC_PREFIX}_{line}"
                 account[Account.account_number.name] = acc_number
                 account[Account.primary_holder.name] = line
-                sio.readline()  # skip second line
+                period = sio.readline().strip()  # skip second line
+                (s, e) = period.split(" - ")
+                start_date = datetime.strptime(s.strip(), "%b %d, %Y")
+                end_date = datetime.strptime(e.strip(), "%b %d, %Y")
                 header = peek_line(sio)
                 specs = (
                     (0, header.index("Transaction Details") - 1),
@@ -133,4 +170,4 @@ def import_statement(file: Path) -> dict:
     df[Record.imported_file.column_name] = file.name
     df[Record.imported_order.column_name] = df.index
 
-    return (account, df.to_dict(orient="records"))
+    return (account, df.to_dict(orient="records"), start_date, end_date)

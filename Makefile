@@ -2,7 +2,7 @@
 
 install:
 	npm install
-	npx parcel build js/index.js --dist-dir static/dist/ --public-url /static/dist/
+	npx parcel build js/*.js --dist-dir static/dist/ --public-url /static/dist/
 
 clean:
 	rm -fr node_modules

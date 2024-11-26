@@ -1,10 +1,12 @@
 #!/bin/env python
 
-from pf.types.models import Account, Record, init_db
+from pf.types.models import Account, Record, AccountStatement, init_db, _db
 
 from pathlib import Path
 import glob
 from importlib import import_module
+
+from pf.plugins.utils import log
 
 if __name__ == "__main__":
     init_db("pf.db")
@@ -18,6 +20,20 @@ if __name__ == "__main__":
             import_module(f"pf.plugins.{name}"), "import_statement"
         )
         for f in files:
-            (acc, txns) = import_statement(Path(f))
-            Account.get_or_create(**acc)
-            Record.insert_many(txns).execute()
+            f = Path(f)
+            if AccountStatement.has_statement(f.name):
+                log.info(f"File '{f}' is already processed")
+                continue
+
+            log.info(f"Processing file '{f}'")
+            (acc, txns, start_date, end_date) = import_statement(f)
+            with _db:
+                Account.get_or_create(**acc)
+                AccountStatement.create(
+                    fk_account_number=acc["account_number"],
+                    start=start_date,
+                    end=end_date,
+                    filename=f.name,
+                    file_content=f.read_bytes(),
+                )
+                Record.insert_many(txns).execute()

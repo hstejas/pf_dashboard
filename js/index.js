@@ -17,7 +17,7 @@ function refresh_chart() {
         account: document.getElementById('account').value,
         filters: document.getElementById('filters').value
     }).toString();
-    fetch("/transactions/plot?" + params)
+    fetch("/api/transactions/?" + params)
         .then((resp) => resp.json())
         .then((data) => {
             chart.data.datasets = data.datasets;
@@ -78,3 +78,4 @@ var chart = new Chart(ctx, {
         }
     }
 })
+

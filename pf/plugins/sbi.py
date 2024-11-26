@@ -1,19 +1,22 @@
-import pandas as pd
 from pathlib import Path
-from ..types.models import Account, Record
 import csv
+from datetime import datetime
+
+import pandas as pd
+
+from ..types.models import Account, Record
 
 BANK_NAME = "State Bank Of India"
 
 
-def import_statement(file: Path):
-
+def _get_metadata(file: Path):
     account = {
         Account.bank_name.name: BANK_NAME,
     }
 
     skiprows = 0
-    acc_number = None
+    start_date = None
+    end_date = None
 
     with open(file, "r") as f:
         dialect = csv.Sniffer().sniff(f.read(1024))
@@ -25,16 +28,31 @@ def import_statement(file: Path):
             k = row[0].strip()
             if k == "Account Number":
                 account[Account.account_number.column_name] = row[1].strip().strip("_")
-                acc_number = account[Account.account_number.column_name]
             elif k == "IFS (Indian Financial System) Code":
                 account[Account.ifsc.column_name] = row[1].strip()
             elif k == "Account Description":
                 account[Account.description.column_name] = row[1].strip()
             elif k == "Account Name":
                 account[Account.primary_holder.column_name] = row[1].strip()
+            elif k == "Start Date":
+                start_date = datetime.strptime(row[1].strip(), "%d %b %Y")
+            elif k == "End Date":
+                end_date = datetime.strptime(row[1].strip(), "%d %b %Y")
             elif k.startswith("Txn Date"):
                 skiprows = row_num
                 break
+
+    return (account, start_date, end_date, skiprows)
+
+
+def get_metadata(file: Path):
+    (account, start_date, end_date, _) = _get_metadata(file)
+    return (account, start_date, end_date)
+
+
+def import_statement(file: Path):
+
+    (account, start_date, end_date, skiprows) = _get_metadata(file)
 
     df = pd.read_csv(
         file,
@@ -82,10 +100,12 @@ def import_statement(file: Path):
     df[Record.credit.name] = pd.to_numeric(df[Record.credit.name])
     df[Record.balance.name] = pd.to_numeric(df[Record.balance.name])
 
-    df[Record.fk_account_number.column_name] = acc_number
+    df[Record.fk_account_number.column_name] = account[
+        Account.account_number.column_name
+    ]
     df[Record.imported_file.column_name] = file.name
     df[Record.imported_order.column_name] = df.index
 
     txns = df.to_dict(orient="records")
 
-    return (account, txns)
+    return (account, txns, start_date, end_date)
