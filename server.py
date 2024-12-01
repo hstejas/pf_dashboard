@@ -33,39 +33,12 @@ def filter_description(df: pd.DataFrame, filters: str):
 
 @app.route("/")
 def index():
-    accounts = list(Account.select(Account.bank_name, Account.account_number).dicts())
-    print(accounts)
     return render_template("index.jinja")
 
 
 @app.route("/accounts/")
 def accounts():
     return render_template("accounts.jinja")
-
-
-@app.route("/transactions/")
-def transactions():
-    account = request.args.get("account")
-    filters = request.args.get("filters", "")
-    res = list(
-        Record.select(
-            Record.date,
-            Record.description,
-            Record.txn_reference,
-            Record.credit,
-            Record.debit,
-            Record.balance,
-        )
-        .where(Record.fk_account_number ** f"%{account}%")
-        .dicts()
-    )
-    df = pd.DataFrame(data=res).fillna("")
-    df["date"] = pd.to_datetime(df["date"])
-    df = df.set_index("date").sort_values(by="date")
-
-    df = filter_description(df, filters)
-
-    return df.to_html()
 
 
 @app.route("/api/accounts/")
@@ -77,29 +50,60 @@ def api_accounts():
 
 
 def extrapolate_balance_for_loan(accounts, balance_df, samples=12):
-    if "loan" in accounts.lower() and len(balance_df) > samples:
-        # y = a*x^2 + b*x + c
-        coeff = polyfit(
-            balance_df.index[-samples:].map(lambda x: x.timestamp()),
-            balance_df["balance"][-samples:],
-            2,
-        )
-        log.debug(coeff)
+    # y = a*x^2 + b*x + c
+    coeff = polyfit(
+        balance_df.index[-samples:].map(lambda x: x.timestamp()),
+        balance_df["balance"][-samples:],
+        2,
+    )
+    log.debug(coeff)
 
-        def extrapolate(x):
-            return (coeff[0] * x * x) + (coeff[1] * x) + coeff[2]
+    def extrapolate(x):
+        return (coeff[0] * x * x) + (coeff[1] * x) + coeff[2]
 
-        ep_df = []
-        for date, _ in balance_df[-samples:].iterrows():
-            ep_df.append([date, extrapolate(date.timestamp())])
-        for i in range(5 * 12 + 2):
-            if ep_df[-1][1] >= 0:
-                break
-            next = ep_df[-1][0] + pd.DateOffset(months=1)
-            ep_df.append([next, extrapolate(next.timestamp())])
-        ep_df = pd.DataFrame(ep_df, columns=["date", "balance"]).set_index("date")
-        ep_df.index = ep_df.index.strftime("%Y-%m")
-        return ep_df
+    ep_df = []
+    for date, _ in balance_df[-samples:].iterrows():
+        ep_df.append([date, extrapolate(date.timestamp())])
+    for i in range(5 * 12 + 2):
+        if ep_df[-1][1] >= 0:
+            break
+        next = ep_df[-1][0] + pd.DateOffset(months=1)
+        ep_df.append([next, extrapolate(next.timestamp())])
+    ep_df = pd.DataFrame(ep_df, columns=["date", "balance"]).set_index("date")
+    ep_df.index = ep_df.index.strftime("%Y-%m")
+    return ep_df
+
+
+def extrapolate_balance_for_provident_fund(accounts, balance_df, samples=12):
+    # y = m*x + c
+    coeff = polyfit(
+        balance_df.index[-samples:].map(lambda x: x.timestamp()),
+        balance_df["balance"][-samples:],
+        1,
+    )
+    log.debug(coeff)
+
+    def extrapolate(x):
+        return (coeff[0] * x) + coeff[1]
+
+    ep_df = []
+    for date, _ in balance_df[-samples:].iterrows():
+        ep_df.append([date, extrapolate(date.timestamp())])
+    for i in range(5 * 12):
+        next = ep_df[-1][0] + pd.DateOffset(months=1)
+        ep_df.append([next, extrapolate(next.timestamp())])
+    ep_df = pd.DataFrame(ep_df, columns=["date", "balance"]).set_index("date")
+    ep_df.index = ep_df.index.strftime("%Y-%m")
+    return ep_df
+
+
+def extrapolate_balance(accounts, balance_df, samples=12):
+    if len(balance_df) <= samples:
+        return None
+    if "PPF" in accounts:
+        return extrapolate_balance_for_provident_fund(accounts, balance_df, samples)
+    if "loan" in accounts.lower():
+        return extrapolate_balance_for_loan(accounts, balance_df, samples)
     return None
 
 
@@ -139,7 +143,7 @@ def api_transactions():
     balance_df = group[["balance"]].mean()
     balance_df = balance_df.replace(to_replace=nan, value=None)
 
-    ep_df = extrapolate_balance_for_loan(accounts, balance_df)
+    ep_df = extrapolate_balance(accounts, balance_df)
 
     balance_df.index = balance_df.index.strftime("%Y-%m")
 
