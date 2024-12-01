@@ -35,7 +35,7 @@ def filter_description(df: pd.DataFrame, filters: str):
 def index():
     accounts = list(Account.select(Account.bank_name, Account.account_number).dicts())
     print(accounts)
-    return render_template("index.jinja", accounts=accounts)
+    return render_template("index.jinja")
 
 
 @app.route("/accounts/")
