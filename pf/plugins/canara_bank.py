@@ -14,7 +14,7 @@ def _clean(value):
         return value[2:-1].strip()
     return value.strip()
 
-    
+
 def _get_metadata(file: Path):
 
     account = {
@@ -32,13 +32,20 @@ def _get_metadata(file: Path):
         for row_num, row in enumerate(reader):
             if len(row) == 0:
                 continue
-            if row[0] == "Account Number":
+            if (
+                len(row) == 3
+                and row[0].strip() == ""
+                and row[1].strip() == ""
+                and row[2].strip().endswith("Account Statement")
+            ):
+                account[Account.description.column_name] = _clean(row[2])
+            elif row[0] == "Account Number":
                 account[Account.account_number.column_name] = _clean(row[1])
             elif row[0] == "IFSC Code":
                 account[Account.ifsc.column_name] = _clean(row[1])
             elif row[0] == "Product Name":
                 account[Account.description.column_name] = _clean(row[1])
-            elif row[0] == "Account Holders Name":
+            elif row[0] in ["Account Holders Name", "Account Holder's Name"]:
                 account[Account.primary_holder.column_name] = _clean(row[1])
             elif row[0] == "Account Currency":
                 account[Account.curreny.column_name] = _clean(row[1])
@@ -46,11 +53,12 @@ def _get_metadata(file: Path):
                 account[Account.customer_id.column_name] = _clean(row[1])
             elif row[0] == "Searched By":
                 (start, end) = _clean(row[1]).split(" To ")
-                start_date = datetime.strptime(
-                    start.replace("From ", "").strip(), "%d %b %Y"
-                )
-                end_date = datetime.strptime(end.strip(), "%d %b %Y")
-            elif row[0] == "Txn Date":
+                start = start.replace("From ", "").strip()
+                end = end.strip()
+                fmt = "%d-%b-%Y" if "-" in start else "%d %b %Y"
+                start_date = datetime.strptime(start.replace("From ", "").strip(), fmt)
+                end_date = datetime.strptime(end.strip(), fmt)
+            elif row[0] == "Txn Date" or row[0] == "Transaction Date":
                 skiprows = row_num
                 break
 
@@ -72,26 +80,29 @@ def import_statement(file: Path):
         skiprows=skiprows,
         engine="python",
         thousands=",",
-        usecols=[
-            "Txn Date",
-            "Description",
-            "Cheque No.",
-            "Debit",
-            "Credit",
-            "Balance",
-        ],
     )
 
-    df = df.rename(
-        columns={
-            "Txn Date": Record.date.name,
-            "Description": Record.description.name,
-            "Cheque No.": Record.txn_reference.name,
-            "Debit": Record.debit.name,
-            "Credit": Record.credit.name,
-            "Balance": Record.balance.name,
-        }
-    )
+    if "Cheque No." not in df.columns:
+        df["Cheque No."] = None
+
+    col_mapping = {}
+    for c in df.columns:
+        if c in ["Txn Date", "Transaction Date"]:
+            col_mapping[c] = Record.date.name
+        elif c in ["Description"]:
+            col_mapping[c] = Record.description.name
+        elif c in ["Cheque No."]:
+            col_mapping[c] = Record.txn_reference.name
+        elif c in ["Debit"]:
+            col_mapping[c] = Record.debit.name
+        elif c in ["Credit"]:
+            col_mapping[c] = Record.credit.name
+        elif c in ["Balance"]:
+            col_mapping[c] = Record.balance.name
+
+    df = df.rename(columns=col_mapping)
+    df = df[[v for k, v in col_mapping.items()]]
+
     df = df.map(lambda x: _clean(x))
     df[Record.date.name] = pd.to_datetime(
         df[Record.date.name], format="%d-%m-%Y %H:%M:%S"
