@@ -7,6 +7,9 @@ from pf.plugins.utils import log
 from numpy import nan, polyfit
 import io
 import zipfile
+from importlib import import_module
+import glob
+from pathlib import Path
 
 
 def create_app():
@@ -219,6 +222,23 @@ def api_get_all_statements():
     resp = make_response(buffer.getvalue(), 200)
     resp.headers["Content-Disposition"] = 'attachment; filename="statements.zip"'
     return resp
+
+
+@app.route("/api/supported/", methods=["GET"])
+def api_get_supported_list():
+    res = []
+    files = glob.glob("pf/plugins/*")
+    for f in files:
+        f = Path(f)
+        if not f.is_file():
+            continue
+        name = f.stem
+        try:
+            bank_name = getattr(import_module(f"pf.plugins.{name}"), "BANK_NAME")
+            res.append({"id": name, "display_name": bank_name})
+        except AttributeError:
+            log.debug(f"{f} is not a plugin")
+    return res
 
 
 if __name__ == "__main__":
