@@ -9,6 +9,7 @@ from peewee import (
     BlobField,
     DateField,
     fn,
+    AutoField,
 )
 from pathlib import Path
 
@@ -44,6 +45,7 @@ class Account(BaseModel):
         for a in accounts:
             a["statements"] = list(
                 AccountStatement.select(
+                    AccountStatement.id,
                     AccountStatement.filename,
                     fn.strftime("%d-%m-%Y", AccountStatement.start),
                     fn.strftime("%d-%m-%Y", AccountStatement.end),
@@ -56,6 +58,7 @@ class Account(BaseModel):
 
 
 class AccountStatement(BaseModel):
+    id = AutoField()
     fk_account_number = ForeignKeyField(Account)
     start = DateField()
     end = DateField()
@@ -63,13 +66,21 @@ class AccountStatement(BaseModel):
     file_content = BlobField()
 
     @classmethod
+    def get_file_by_id(cls, id):
+        try:
+            res = cls.select(cls.filename, cls.file_content).where(cls.id == id).get()
+        except Exception:
+            return (None, None)
+        return (res.filename, res.file_content)
+
+    @classmethod
+    def get_all_files(cls):
+        res = cls.select(cls.filename, cls.file_content)
+        return [(r.filename, r.file_content) for r in res]
+
+    @classmethod
     def has_statement(cls, filename):
-        return (
-            AccountStatement.select(AccountStatement.filename)
-            .where(AccountStatement.filename == filename)
-            .count()
-            == 1
-        )
+        return cls.select(cls.filename).where(cls.filename == filename).count() == 1
 
 
 class Record(BaseModel):

@@ -9,7 +9,21 @@
 
 <template id="statement_row">
     <tr>
-        <td id="filename"></td><td id="start"></td><td id="end"></td>
+        <td id="filename"></td>
+        <td id="start"></td>
+        <td id="end"></td>
+        <td id="actions">
+            <a id="download">
+                <span class="icon has-text-info">
+                    <i class="fas fa-download"></i>
+                </span>
+            </a>
+            <a>
+                <span class="icon has-text-danger">
+                    <i class="fas fa-trash"></i>
+                </span>
+            </a>
+        </td>
     </tr>
 </template>
 
@@ -28,8 +42,13 @@
                     <div><strong>Name:</strong> <span id="name"></span></div>
                     <div><strong>Description:</strong> <span id="description"></span></div>
                     <div><span class="subtitle is-5">Statements</span>
-                        <table  class="table" id="statements">
-                            <tr><th>Statement</th><th>From</th><th>To</th></tr>
+                        <table class="table" id="statements">
+                            <tr>
+                                <th>Statement</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Actions</th>
+                            </tr>
                         </table>
                     </div>
                 </div>
@@ -41,6 +60,14 @@
 
 <body>
     <div class="section">
+        <a class="button is-primary" href="/api/statements">
+            <span class="icon">
+                <i class="fas fa-download"></i>
+            </span>
+            <span>
+                Download All Statements
+            </span>
+        </a>
         <div id="wrapper"></div>
     </div>
     <script src="{{ url_for('static', filename='dist/accounts.js') }}"></script>

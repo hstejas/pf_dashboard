@@ -4,11 +4,12 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bulma'
 
 
-function create_statement_row(filename, start, end) {
+function create_statement_row(id, filename, start, end) {
     const statement_row = document.getElementById('statement_row').content.cloneNode(true);
     statement_row.querySelector('#filename').textContent = filename;
     statement_row.querySelector('#start').textContent = start;
     statement_row.querySelector('#end').textContent = end;
+    statement_row.querySelector('#download').href = `/api/statements/${id}/`;
     return statement_row
 }
 
@@ -19,8 +20,8 @@ function create_account_row(bank_name, account_number, name, description, statem
     account_row.querySelector('#name').textContent = name;
     account_row.querySelector('#description').textContent = description;
     const filesList = account_row.querySelector('#statements');
-    for(s of statements) {
-        const listItem = create_statement_row(s.filename, s.start, s.end);
+    for (s of statements) {
+        const listItem = create_statement_row(s.id, s.filename, s.start, s.end);
         filesList.appendChild(listItem);
     }
     return account_row;

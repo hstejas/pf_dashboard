@@ -1,10 +1,12 @@
 #!/bin/env python
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, make_response, abort
 import pandas as pd
-from pf.types.models import Account, Record, init_db
+from pf.types.models import Account, AccountStatement, Record, init_db
 from playhouse.flask_utils import FlaskDB
 from pf.plugins.utils import log
 from numpy import nan, polyfit
+import io
+import zipfile
 
 
 def create_app():
@@ -175,6 +177,48 @@ def api_transactions():
         )
 
     return ret
+
+
+@app.route("/api/statements/<id>/", methods=["GET"])
+def api_get_statement(id):
+    (filename, content) = AccountStatement.get_file_by_id(id)
+    if filename is None:
+        abort(404)
+
+    resp = make_response(content, 200)
+    resp.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    return resp
+
+
+@app.route("/api/statements/<id>/", methods=["DELETE"])
+def api_delete_statement(id):
+    return {}
+
+
+@app.route("/api/statements/", methods=["PUT", "POST"])
+def api_upload_statement(id):
+    return {}
+
+
+@app.route("/api/reset/", methods=["GET"])
+def api_reset(id):
+    return {}
+
+
+@app.route("/api/statements/", methods=["GET"])
+def api_get_all_statements():
+    stmt_list = AccountStatement.get_all_files()
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(
+        buffer, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6
+    ) as z:
+        for name, content in stmt_list:
+            z.writestr(name, content)
+
+    resp = make_response(buffer.getvalue(), 200)
+    resp.headers["Content-Disposition"] = 'attachment; filename="statements.zip"'
+    return resp
 
 
 if __name__ == "__main__":
