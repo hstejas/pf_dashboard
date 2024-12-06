@@ -1,7 +1,7 @@
 #!/bin/env python
 from flask import Flask, request, render_template, make_response, abort
 import pandas as pd
-from pf.types.models import Account, AccountStatement, Record, init_db
+from pf.types.models import Account, AccountStatement, Record, init_db, create_tables
 from playhouse.flask_utils import FlaskDB
 from pf.plugins.utils import log
 from numpy import nan, polyfit
@@ -43,9 +43,7 @@ def accounts():
 
 @app.route("/api/accounts/")
 def api_accounts():
-    # res = list(Account.select().dicts())
     res = Account.get_accounts_and_statements()
-    # df = pd.DataFrame(data=res)
     return res
 
 
@@ -138,7 +136,6 @@ def api_transactions():
 
     group = df.groupby(pd.Grouper(freq="ME"))
     gdf = group[["credit", "debit"]].sum()
-    # gdf = gdf.replace(to_replace=nan, value=None)
     gdf.index = gdf.index.strftime("%Y-%m")
     balance_df = group[["balance"]].mean()
     balance_df = balance_df.replace(to_replace=nan, value=None)
@@ -200,7 +197,8 @@ def api_get_statement(id):
 
 @app.route("/api/statements/<id>/", methods=["DELETE"])
 def api_delete_statement(id):
-    return {}
+    AccountStatement.delete_by_id(id)
+    return make_response("", 200)
 
 
 @app.route("/api/statements/", methods=["PUT", "POST"])
@@ -209,8 +207,11 @@ def api_upload_statement(id):
 
 
 @app.route("/api/reset/", methods=["GET"])
-def api_reset(id):
-    return {}
+def api_reset():
+    Record.drop_table()
+    Account.drop_table()
+    create_tables()
+    return make_response("", 200)
 
 
 @app.route("/api/statements/", methods=["GET"])

@@ -10,6 +10,11 @@ function create_statement_row(id, filename, start, end) {
     statement_row.querySelector('#start').textContent = start;
     statement_row.querySelector('#end').textContent = end;
     statement_row.querySelector('#download').href = `/api/statements/${id}/`;
+    statement_row.querySelector('#delete').onclick = () => {
+        fetch(`/api/statements/${id}/`, { method: 'DELETE' })
+            .then((resp) => { console.log(resp) })
+            .catch((data) => { alert(data); });
+    }
     return statement_row
 }
 

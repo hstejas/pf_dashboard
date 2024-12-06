@@ -18,9 +18,13 @@ _db = SqliteDatabase(None)
 
 def init_db(db_path: Path):
     _db.init(db_path, pragmas={"journal_mode": "wal", "foreign_keys": 1})
+    create_tables()
+    return _db
+
+
+def create_tables():
     with _db:
         _db.create_tables([Account, Record, AccountStatement], safe=True)
-    return _db
 
 
 class BaseModel(Model):
@@ -59,10 +63,11 @@ class Account(BaseModel):
 
 class AccountStatement(BaseModel):
     id = AutoField()
-    fk_account_number = ForeignKeyField(Account)
+    fk_account_number = TextField()  # Should map to Record.account_number, but loosely
     start = DateField()
     end = DateField()
     filename = TextField(unique=True)
+    sha256 = TextField(unique=True)
     file_content = BlobField()
 
     @classmethod
@@ -82,6 +87,12 @@ class AccountStatement(BaseModel):
     def has_statement(cls, filename):
         return cls.select(cls.filename).where(cls.filename == filename).count() == 1
 
+    @classmethod
+    def delete_by_id(cls, id):
+        stmt = cls.select().where(cls.id == id).get()
+        Record.delete_by_statement(stmt.filename, stmt.fk_account_number)
+        cls.delete().where(cls.id == id).execute()
+
 
 class Record(BaseModel):
     fk_account_number = ForeignKeyField(Account)
@@ -96,3 +107,9 @@ class Record(BaseModel):
 
     class Meta:
         constraints = [SQL("UNIQUE (imported_file, imported_order) ON CONFLICT IGNORE")]
+
+    @classmethod
+    def delete_by_statement(cls, statement, account):
+        cls.delete().where(
+            cls.imported_file == statement, cls.fk_account_number == account
+        ).execute()

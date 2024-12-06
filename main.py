@@ -5,6 +5,7 @@ from pf.types.models import Account, Record, AccountStatement, init_db, _db
 from pathlib import Path
 import glob
 from importlib import import_module
+import hashlib
 
 from pf.plugins.utils import log
 
@@ -29,11 +30,13 @@ if __name__ == "__main__":
             (acc, txns, start_date, end_date) = import_statement(f)
             with _db:
                 Account.get_or_create(**acc)
+                content = f.read_bytes()
                 AccountStatement.create(
                     fk_account_number=acc["account_number"],
                     start=start_date,
                     end=end_date,
                     filename=f.name,
-                    file_content=f.read_bytes(),
+                    sha256=hashlib.sha256(content).hexdigest(),
+                    file_content=content,
                 )
                 Record.insert_many(txns).execute()
