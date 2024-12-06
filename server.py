@@ -22,6 +22,20 @@ def create_app():
 (app, database) = create_app()
 
 
+def _get_plugins():
+    res = {}
+    files = glob.glob("pf/plugins/*")
+    for f in files:
+        f = Path(f)
+        if not f.is_file():
+            continue
+        name = f.stem
+        plugin = import_module(f"pf.plugins.{name}")
+        if hasattr(plugin, "BANK_NAME"):
+            res[name] = plugin
+    return res
+
+
 def filter_description(df: pd.DataFrame, filters: str):
     if len(filters) < 2:
         return df
@@ -233,17 +247,14 @@ def api_get_all_statements():
 @app.route("/api/supported/", methods=["GET"])
 def api_get_supported_list():
     res = []
-    files = glob.glob("pf/plugins/*")
-    for f in files:
-        f = Path(f)
-        if not f.is_file():
-            continue
-        name = f.stem
-        try:
-            bank_name = getattr(import_module(f"pf.plugins.{name}"), "BANK_NAME")
-            res.append({"id": name, "display_name": bank_name})
-        except AttributeError:
-            log.debug(f"{f} is not a plugin")
+    for name, plugin in _get_plugins().items():
+        res.append(
+            {
+                "id": name,
+                "display_name": plugin.BANK_NAME,
+                "supported_formats": plugin.SUPPORTED_FORMATS,
+            }
+        )
     return res
 
 

@@ -7,6 +7,7 @@ import pandas as pd
 from ..types.models import Account, Record
 
 BANK_NAME = "State Bank Of India"
+SUPPORTED_FORMATS = ["csv", "xls"]
 
 
 def _get_metadata(file: Path):

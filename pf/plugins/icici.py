@@ -7,6 +7,7 @@ from .utils import log
 
 
 BANK_NAME = "ICICI Bank"
+SUPPORTED_FORMATS = ["xls"]
 
 
 def _get_metadata(file: Path):

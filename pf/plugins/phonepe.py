@@ -9,6 +9,7 @@ from datetime import datetime
 
 BANK_NAME = "Phone Pe"
 ACC_PREFIX = "phonepe"
+SUPPORTED_FORMATS = ["pdf"]
 
 
 def peek_line(f: StringIO) -> str:

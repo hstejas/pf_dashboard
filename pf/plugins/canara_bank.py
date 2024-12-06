@@ -5,6 +5,7 @@ import csv
 from ..types.models import Account, Record
 
 BANK_NAME = "Canara Bank"
+SUPPORTED_FORMATS = ["csv"]
 
 
 def _clean(value):
