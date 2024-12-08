@@ -8,8 +8,9 @@ from peewee import (
     FloatField,
     BlobField,
     DateField,
-    fn,
+    IntegerField,
     AutoField,
+    fn,
 )
 from pathlib import Path
 
@@ -103,7 +104,7 @@ class Record(BaseModel):
     description = TextField()
     txn_reference = TextField(null=True)
     imported_file = TextField()
-    imported_order = TextField()
+    imported_order = IntegerField()
 
     class Meta:
         constraints = [SQL("UNIQUE (imported_file, imported_order) ON CONFLICT IGNORE")]

@@ -135,7 +135,7 @@ def api_transactions():
             Record.date, Record.description, Record.credit, Record.debit, Record.balance
         )
         .where(Record.fk_account_number ** f"%{account}%")
-        .order_by(Record.date, Record.imported_order)
+        .order_by(Record.date.desc(), Record.imported_order.desc())
         .dicts()
     )
     if len(res) == 0:
