@@ -17,10 +17,9 @@ def create_app():
     app = Flask(__name__)
     peewee_db = init_db(DATABASE)
     FlaskDB(app, peewee_db)
-    return app
+    return app, peewee_db
 
-
-app = create_app()
+(app, database) = create_app()
 
 
 def filter_description(df: pd.DataFrame, filters: str):
@@ -208,9 +207,11 @@ def api_upload_statement(id):
 
 @app.route("/api/reset/", methods=["GET"])
 def api_reset():
-    Record.drop_table()
-    Account.drop_table()
-    create_tables()
+    with database:
+        Record.drop_table()
+        AccountStatement.drop_table()
+        Account.drop_table()
+        create_tables()
     return make_response("", 200)
 
 
