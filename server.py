@@ -10,6 +10,8 @@ import zipfile
 from importlib import import_module
 import glob
 from pathlib import Path
+import tempfile
+import hashlib
 
 
 def create_app():
@@ -18,6 +20,7 @@ def create_app():
     peewee_db = init_db(DATABASE)
     FlaskDB(app, peewee_db)
     return app, peewee_db
+
 
 (app, database) = create_app()
 
@@ -215,8 +218,36 @@ def api_delete_statement(id):
 
 
 @app.route("/api/statements/", methods=["PUT", "POST"])
-def api_upload_statement(id):
-    return {}
+def api_upload_statement():
+    plugin_id = request.args.get("plugin")
+    filename = Path(request.args.get("filename")).name
+    content = request.data
+    plugins = _get_plugins()
+    if plugin_id not in plugins:
+        return make_response(f"Unknown plugin '{plugin_id}'", 400)
+    if filename == "":
+        return make_response(f"Invalid filename '{filename}'", 400)
+    if len(content) == 0:
+        return make_response("Empty file", 400)
+
+    with tempfile.NamedTemporaryFile() as tmp_file:
+        tmp_file.write(content)
+        tmp_file.flush()
+        (acc, txns, start_date, end_date) = plugins[plugin_id].import_statement(
+            Path(tmp_file.name)
+        )
+        with database:
+            Account.get_or_create(**acc)
+            AccountStatement.create(
+                fk_account_number=acc["account_number"],
+                start=start_date,
+                end=end_date,
+                filename=filename,
+                sha256=hashlib.sha256(content).hexdigest(),
+                file_content=content,
+            )
+            Record.insert_many(txns).execute()
+    return make_response("", 200)
 
 
 @app.route("/api/reset/", methods=["GET"])
