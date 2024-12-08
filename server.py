@@ -231,13 +231,17 @@ def api_reset():
 
 @app.route("/api/statements/", methods=["GET"])
 def api_get_all_statements():
-    stmt_list = AccountStatement.get_all_files()
+    stmt_list = None
+    with database:
+        stmt_list = AccountStatement.get_all_files()
+    if not stmt_list:
+        return make_response("No statements found", 404)
     buffer = io.BytesIO()
     with zipfile.ZipFile(
         buffer, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6
     ) as z:
-        for name, content in stmt_list:
-            z.writestr(name, content)
+        for name, plugin, content in stmt_list:
+            z.writestr(f"{plugin}/{name}", content)
 
     resp = make_response(buffer.getvalue(), 200)
     resp.headers["Content-Disposition"] = 'attachment; filename="statements.zip"'

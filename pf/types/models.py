@@ -64,11 +64,12 @@ class Account(BaseModel):
 
 class AccountStatement(BaseModel):
     id = AutoField()
-    fk_account_number = TextField()  # Should map to Record.account_number, but loosely
+    fk_account_number = ForeignKeyField(Account)
     start = DateField()
     end = DateField()
     filename = TextField(unique=True)
     sha256 = TextField(unique=True)
+    plugin = TextField()
     file_content = BlobField()
 
     @classmethod
@@ -81,8 +82,8 @@ class AccountStatement(BaseModel):
 
     @classmethod
     def get_all_files(cls):
-        res = cls.select(cls.filename, cls.file_content)
-        return [(r.filename, r.file_content) for r in res]
+        res = cls.select(cls.filename, cls.plugin, cls.file_content)
+        return [(r.filename, r.plugin, r.file_content) for r in res]
 
     @classmethod
     def has_statement(cls, filename):

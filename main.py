@@ -38,5 +38,6 @@ if __name__ == "__main__":
                     filename=f.name,
                     sha256=hashlib.sha256(content).hexdigest(),
                     file_content=content,
+                    plugin=name,
                 )
                 Record.insert_many(txns).execute()
