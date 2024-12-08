@@ -60,14 +60,66 @@
 
 <body>
     <div class="section">
-        <a class="button is-primary" href="/api/statements">
-            <span class="icon">
-                <i class="fas fa-download"></i>
-            </span>
-            <span>
-                Download All Statements
-            </span>
-        </a>
+        <div>
+            <div class="buttons has-addons">
+                <a class="button is-primary" href="/">
+                    <span class="icon">
+                        <i class="fas fa-home"></i>
+                    </span>
+                    <span>
+                        Home
+                    </span>
+                </a>
+                <a class="button" href="">
+                    <span class="icon">
+                        <i class="fas fa-file-import"></i>
+                    </span>
+                    <span>
+                        Import Statement
+                    </span>
+                </a>
+
+                <a class="button" href="/api/statements">
+                    <span class="icon">
+                        <i class="fas fa-download"></i>
+                    </span>
+                    <span>
+                        Download Statement Bundle
+                    </span>
+                </a>
+                <a class="button is-danger" href="">
+                    <span class="icon">
+                        <i class="fas fa-file-zipper"></i>
+                    </span>
+                    <span>
+                        Import Statement Bundle
+                    </span>
+                </a>
+                <a class="button is-danger" href="/api/reset">
+                    <span class="icon">
+                        <i class="fas fa-trash"></i>
+                    </span>
+                    <span>
+                        Full Reset
+                    </span>
+                </a>
+            </div>
+            <form method="POST" action="/api/statements/" enctype="multipart/form-data">
+                <div class="file has-name">
+                    <label class="file-label">
+                        <input class="file-input" type="file" name="file" />
+                        <span class="file-cta">
+                            <span class="file-icon">
+                                <i class="fas fa-upload"></i>
+                            </span>
+                            <span class="file-label"> Choose a file… </span>
+                        </span>
+                        <span class="file-name"> Screen Shot 2017-07-29 at 15.54.25.png </span>
+                    </label>
+                </div>
+                <input class="button" type="submit" value="Upload File" />
+            </form>
+        </div>
         <div id="wrapper"></div>
     </div>
     <script src="{{ url_for('static', filename='dist/accounts.js') }}"></script>
