@@ -7,80 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='dist/index.css') }}">
 </head>
 
-<template id="account_row">
-    <div class="box">
-        <div><span id="bank"></span></div>
-        <div><span id="account_number"></span></div>
-        <div><span id="name"></span></div>
-        <div><span id="description"></span></div>
-    </div>
-</template>
-
-
 <body>
-    <div class="section">
-        <div class="columns">
-            <div class="column is-2">
-                <div class="field-group">
-                    <div class="field">
-                        <label class="label">Account Number</label>
-                        <div class="control has-icons-left">
-                            <div class="select">
-                                <select id="account" required>
-                                    <option hidden selected>Select Account Number</option>
-                                </select>
-                            </div>
-                            <span class="icon is-left has-text-primary">
-                                <i class="fa-solid fa-circle-user"></i>
-                            </span>
-                            <a href="/accounts/">View all accounts</a>
-                        </div>
-                        <div class="field">
-                            <div id="account_details"></div>
-                        </div>
-                        <div class="field">
-                            <label class="label">Filter keywords</label>
-                            <div class="control">
-                                <textarea id="filters" class="textarea has-fixed-size"
-                                    placeholder="'|' separated keywords to filter by. e.g 'amazon|flipkart|water'"></textarea>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="control">
-                                <div class="buttons has-addons">
-                                    <button id="clear" class="button">Clear</button>
-                                    <button id="refresh" class="button is-success">Refresh</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label class="label">Quick Filters</label>
-                            <div class="control">
-                                <div class="buttons">
-                                    <button id="add_shopping" class="button">Shopping</button>
-                                    <button id="add_medical" class="button">Medical</button>
-                                    <button id="add_salary" class="button">Salary</button>
-                                    <button id="add_groceries" class="button">Salary</button>
-                                    <button id="add_food" class="button">Food Delivery</button>
-                                    <button id="add_utilities" class="button">Utilities</button>
-                                    <button id="add_bill_payment" class="button">Bill payments</button>
-                                    <button id="add_fuel" class="button">Fuel</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="column">
-                <div class="section">
-                    <canvas id="myChart"></canvas>
-                </div>
-                <div class="section">
-                    <div id="wrapper"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="app"></div>
     <script src="{{ url_for('static', filename='dist/index.js') }}"></script>
 </body>
 

@@ -7,7 +7,7 @@ PASSWORD_FILE = "data/.passwords"
 
 logger = logging.getLogger("peewee")
 logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 
 
 def get_passwords() -> list:

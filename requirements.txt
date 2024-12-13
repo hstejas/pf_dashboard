@@ -1,7 +1,6 @@
 pandas
 peewee
 flask
-jinja2
 pypdf
 openpyxl
 xlrd
