@@ -219,8 +219,8 @@ def api_delete_statement(id):
 
 @app.route("/api/statements/", methods=["PUT", "POST"])
 def api_upload_statement():
-    plugin_id = request.args.get("plugin")
-    filename = Path(request.args.get("filename")).name
+    plugin_id = request.args.get("plugin", "")
+    filename = Path(request.args.get("filename", "")).name
     content = request.data
     plugins = _get_plugins()
     if plugin_id not in plugins:
@@ -245,6 +245,7 @@ def api_upload_statement():
                 filename=filename,
                 sha256=hashlib.sha256(content).hexdigest(),
                 file_content=content,
+                plugin=plugin_id,
             )
             Record.insert_many(txns).execute()
     return make_response("", 200)

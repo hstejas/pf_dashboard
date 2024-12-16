@@ -3,6 +3,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import "bulma"
 
 export default {
+    emits: ['close', 'refresh'],
     props: {
         is_active: {
             type: Boolean,
@@ -15,11 +16,18 @@ export default {
             import_plugin: null,
             import_files: null,
             error: null,
+            processing: false,
         };
     },
     methods: {
-        close() {
+        reset() {
+            this.import_plugin = null;
+            this.import_files = null;
             this.error = null;
+            this.processing = false;
+        },
+        close() {
+            this.reset();
             this.$emit('close')
         },
         show_selected_file(elem) {
@@ -31,6 +39,29 @@ export default {
                 this.error = "Select file and bank";
                 return;
             }
+            const params = new URLSearchParams({
+                plugin: this.import_plugin,
+                filename: this.import_files[0].name,
+            }).toString();
+
+            this.processing = true;
+            fetch("/api/statements/?" + params, {
+                method: "PUT",
+                body: this.import_files[0],
+            }).then(async (resp) => {
+                this.processing = false;
+                if (resp.ok) {
+                    this.error = null;
+                    this.close();
+                    this.$emit('refresh');
+                }
+                else {
+                    const err = await resp.text();
+                    throw new Error("Upload failed", { cause: err });
+                }
+            }).catch((error) => {
+                this.error = String(error);
+            })
         }
     },
     mounted() {
@@ -83,8 +114,9 @@ export default {
             </div>
             <footer class="modal-card-foot">
                 <div class="buttons has-addons">
-                    <button class="button is-primary" type="submit" @click="import_statement">Upload File</button>
-                    <button class="button" @click="close">Cancel</button>
+                    <button :class="{ button: true, 'is-primary': true, 'is-loading': processing }" type="submit"
+                        @click="import_statement" :disabled="processing">Upload File</button>
+                    <button class="button" @click="close" :disabled="processing">Close</button>
                 </div>
             </footer>
         </div>

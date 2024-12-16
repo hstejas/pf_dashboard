@@ -3,6 +3,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bulma'
 
 export default {
+    emits: ["refresh"],
     props: {
         stmt_id: [String, Number],
         filename: String,
@@ -12,7 +13,7 @@ export default {
     methods: {
         deleteStatement() {
             fetch(`/api/statements/${this.stmt_id}/`, { method: 'DELETE' })
-                .then((resp) => { console.log(resp) })
+                .then((resp) => { this.$emit("refresh") })
                 .catch((data) => { alert(data); });
         }
     }

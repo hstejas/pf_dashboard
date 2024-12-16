@@ -4,7 +4,8 @@ import "bulma"
 import StatementRow from './StatementRow.vue'
 
 export default {
-    components:{
+    emits: ["refresh"],
+    components: {
         StatementRow,
     },
     props: {
@@ -28,11 +29,11 @@ export default {
             </figure>
             <div class="media-content">
                 <div class="content">
-                    <div class="title is-5"><span>{{bank}}</span></div>
-                    <div><strong>Account Number:</strong> <span> {{account_number}}</span></div>
-                    <div><strong>Name:</strong> <span>{{name}}</span></div>
-                    <div><strong>Description:</strong> <span>{{description}}</span></div>
-                    <div v-if="statements.length >= 0">
+                    <div class="title is-5"><span>{{ bank }}</span></div>
+                    <div><strong>Account Number:</strong> <span> {{ account_number }}</span></div>
+                    <div><strong>Name:</strong> <span>{{ name }}</span></div>
+                    <div><strong>Description:</strong> <span>{{ description }}</span></div>
+                    <div v-if="statements.length > 0">
                         <span class="subtitle is-5">Statements</span>
                         <table class="table">
                             <tr>
@@ -41,8 +42,8 @@ export default {
                                 <th>To</th>
                                 <th>Actions</th>
                             </tr>
-                            <StatementRow v-for="s in statements" :stmt_id="s.id" :filename="s.filename" :start="s.start"
-                                :end="s.end"></StatementRow>
+                            <StatementRow v-for="s in statements" :stmt_id="s.id" :filename="s.filename"
+                                :start="s.start" :end="s.end" @refresh="$emit('refresh')"></StatementRow>
                         </table>
                     </div>
                 </div>

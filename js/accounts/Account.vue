@@ -18,13 +18,16 @@ export default {
         }
     },
     methods: {
-    },
-    mounted() {
-        fetch("/api/accounts/")
+        load_account_details() {
+            fetch("/api/accounts/")
             .then((resp) => resp.json())
             .then((data) => {
                 this.accounts = data;
             })
+        }
+    },
+    mounted() {
+        this.load_account_details();
     },
 };
 </script>
@@ -32,7 +35,7 @@ export default {
 
 
 <template>
-    <ImportFileModal :is_active="import_file_modal_active" @close="import_file_modal_active = false"></ImportFileModal>
+    <ImportFileModal :is_active="import_file_modal_active" @close="import_file_modal_active = false" @refresh="load_account_details"></ImportFileModal>
     <div class="section">
         <div>
             <div class="buttons has-addons">
@@ -81,7 +84,7 @@ export default {
         </div>
         <div class="section">
             <AccountRow v-for="a in accounts" :bank="a.bank_name" :account_numer="a.account_numer"
-                :name="a.primary_holder" :description="a.description" :statements="a.statements">
+                :name="a.primary_holder" :description="a.description" :statements="a.statements" @refresh="load_account_details">
             </AccountRow>
         </div>
     </div>
