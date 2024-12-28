@@ -1,0 +1,33 @@
+,,Current & Saving Account Statement
+
+ABCD EFGH  
+FOO BAR
+BLAH BLAH
+BOO BOO
+GOO GOO
+
+=""
+
+
+,,"Account Statement as of,01-11-2002 10:10:10 +0530"
+Account Holders Name,ABCD EFGH  
+Customer Id ,="12345678"
+Branch Name,"XYZ Branch"
+MICR Code,="09876"
+IFSC Code,"CNRB0000001"
+Searched By,From 01 Jan 2002 To 01 Feb 2002
+Account Number,="0111111222333   "
+Account Currency,INR
+Product Name,SOME PRODUCT
+Opening Balance,"Rs.10,528.52"
+Closing Balance,"Rs.17,806.52"
+
+
+
+Txn Date,Value Date,Cheque No.,Description,Branch Code,Debit,Credit,Balance,
+="04-01-2002 21:45:15",="04 Jan 2002",="0001111","UPI/abcd/xyz","001",="18.00",,"20,510.52"
+="08-01-2002 17:58:12",="08 Jan 2002",="0002222","UPI/abcd/xyz","001",="147.00",,"20,363.52"
+="12-01-2002 17:25:54",="12 Jan 2002",="003333","UPI/abcd/xyz@#$%^&!","001",="344.00",,"20,019.52"
+="16-01-2002 01:12:12",="16 Jan 2002",="","AAABBBCCC","007",,="775.00","20,794.52"
+="16-01-2002 13:50:35",="16 Jan 2002",="004444","UPI/abcd/xyz","01",="480.00",,"20,314.52"
+="19-01-2002 18:27:24",="19 Jan 2002",="005555","UPI/abcd/xyz","01","1,411.00",,"18,903.52"

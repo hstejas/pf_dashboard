@@ -53,7 +53,7 @@ def get_metadata(file: Path):
     return (account, start_date, end_date)
 
 
-def import_statement(file: Path):
+def import_statement(file: Path, display_file_name=None):
 
     (account, start_date, end_date, skiprows) = _get_metadata(file)
 
@@ -92,7 +92,9 @@ def import_statement(file: Path):
     df[Record.fk_account_number.column_name] = account[
         Account.account_number.column_name
     ]
-    df[Record.imported_file.column_name] = file.name
+    df[Record.imported_file.column_name] = (
+        display_file_name if display_file_name else file.name
+    )
     df[Record.imported_order.column_name] = df.index
 
     txns = df.to_dict(orient="records")

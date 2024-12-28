@@ -68,7 +68,7 @@ def get_metadata(file: Path) -> dict:
     return (account, start_date, end_date)
 
 
-def import_statement(file: Path) -> dict:
+def import_statement(file: Path, display_file_name) -> dict:
     account = {
         Account.bank_name.name: BANK_NAME,
         Account.description.name: "UPI",
@@ -168,7 +168,9 @@ def import_statement(file: Path) -> dict:
     df[Record.balance.name] = pd.to_numeric(df[Record.balance.name])
 
     df[Record.fk_account_number.column_name] = acc_number
-    df[Record.imported_file.column_name] = file.name
+    df[Record.imported_file.column_name] = (
+        display_file_name if display_file_name else file.name
+    )
     df[Record.imported_order.column_name] = df.index
 
     return (account, df.to_dict(orient="records"), start_date, end_date)

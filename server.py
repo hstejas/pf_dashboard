@@ -234,7 +234,7 @@ def api_upload_statement():
         tmp_file.write(content)
         tmp_file.flush()
         (acc, txns, start_date, end_date) = plugins[plugin_id].import_statement(
-            Path(tmp_file.name)
+            Path(tmp_file.name), filename
         )
         with database:
             Account.get_or_create(**acc)

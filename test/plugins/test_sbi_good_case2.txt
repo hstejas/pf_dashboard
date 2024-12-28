@@ -1,0 +1,21 @@
+Account Name       :                	ABCD EFGH
+Address            :	1234
+                                    	ABCDEFGH IJK
+                                    	QWERTY
+                                    	Asdfgh
+Date               :                	1 Dec 2000
+Account Number     :	_00000011111122233
+Account Description:	HOME LOAN
+Branch             :	XYZ Branch
+Balance on 1 Nov 2008        :	-1,11,111.00
+Start Date          :	1 Nov 2008
+End Date            :	30 Nov 2008
+Txn Date	Value Date	Description	Ref No./Cheque No.	        Debit	Credit	Balance	
+30 Nov 2008	30 Nov 2008	PART PERIOD INTER---	-	1,001.00	 	-1,33,217.00
+24 Nov 2008	24 Nov 2008	DEPOSIT TRANSFER-Trf From 1234                                                      TRANSFER FROM 1234                         ABCD EFGH--	-	 	10,000.00	-1,23,217.00
+16 Nov 2008	16 Nov 2008	DEPOSIT TRANSFER-Trf From 1234                                                      TRANSFER FROM 1234                         ABCD EFGH--	-	 	10,000.00	-1,13,217.00
+11 Nov 2008	11 Nov 2008	O.S. DEPOSIT TRAN-TRANSFER FROM                                                                                       TRANSFER FROM 1234                         ABCD EFGH--	-	 	1,000.00	-1,12,217.00
+5 Nov 2008	5 Nov 2008	O.S. DEPOSIT TRAN-TRANSFER FROM                                                                                       TRANSFER FROM 1234                         ABCD EFGH--	-	 	1,100.00	-1,11,217.00
+1 Nov 2008	1 Nov 2008	DEPOSIT TRANSFER-Trf From 1234                                                       TRANSFER FROM 1234                         ABCD EFGH--	-	 	106.00	-1,11,111.00
+
+**This is a computer generated statement and does not require a signature

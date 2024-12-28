@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 import csv
 from ..types.models import Account, Record
+import numpy as np
 
 BANK_NAME = "Canara Bank"
 SUPPORTED_FORMATS = ["csv"]
@@ -40,26 +41,26 @@ def _get_metadata(file: Path):
                 and row[2].strip().endswith("Account Statement")
             ):
                 account[Account.description.column_name] = _clean(row[2])
-            elif row[0] == "Account Number":
+            elif row[0].strip() == "Account Number":
                 account[Account.account_number.column_name] = _clean(row[1])
-            elif row[0] == "IFSC Code":
+            elif row[0].strip() == "IFSC Code":
                 account[Account.ifsc.column_name] = _clean(row[1])
-            elif row[0] == "Product Name":
+            elif row[0].strip() == "Product Name":
                 account[Account.description.column_name] = _clean(row[1])
-            elif row[0] in ["Account Holders Name", "Account Holder's Name"]:
+            elif row[0].strip() in ["Account Holders Name", "Account Holder's Name"]:
                 account[Account.primary_holder.column_name] = _clean(row[1])
-            elif row[0] == "Account Currency":
+            elif row[0].strip() == "Account Currency":
                 account[Account.curreny.column_name] = _clean(row[1])
-            elif row[0] == "Customer Id":
+            elif row[0].strip() == "Customer Id":
                 account[Account.customer_id.column_name] = _clean(row[1])
-            elif row[0] == "Searched By":
+            elif row[0].strip() == "Searched By":
                 (start, end) = _clean(row[1]).split(" To ")
                 start = start.replace("From ", "").strip()
                 end = end.strip()
                 fmt = "%d-%b-%Y" if "-" in start else "%d %b %Y"
                 start_date = datetime.strptime(start.replace("From ", "").strip(), fmt)
                 end_date = datetime.strptime(end.strip(), fmt)
-            elif row[0] == "Txn Date" or row[0] == "Transaction Date":
+            elif row[0].strip() == "Txn Date" or row[0] == "Transaction Date":
                 skiprows = row_num
                 break
 
@@ -71,7 +72,7 @@ def get_metadata(file: Path):
     return (account, start_date, end_date)
 
 
-def import_statement(file: Path):
+def import_statement(file: Path, display_file_name=None):
 
     (account, start_date, end_date, skiprows) = _get_metadata(file)
 
@@ -110,14 +111,15 @@ def import_statement(file: Path):
     )
     df[Record.date.name] = df[Record.date.name].apply(lambda x: str(x))
 
-    df[Record.debit.name] = pd.to_numeric(df[Record.debit.name])
-    df[Record.credit.name] = pd.to_numeric(df[Record.credit.name])
-    df[Record.balance.name] = pd.to_numeric(df[Record.balance.name])
+    for i in [Record.debit.name, Record.credit.name, Record.balance.name]:
+        df[i] = pd.to_numeric(df[i]).replace({np.nan: None})
 
     df[Record.fk_account_number.column_name] = account[
         Account.account_number.column_name
     ]
-    df[Record.imported_file.column_name] = file.name
+    df[Record.imported_file.column_name] = (
+        display_file_name if display_file_name else file.name
+    )
     df[Record.imported_order.column_name] = df.index
 
     txns = df.to_dict(orient="records")
