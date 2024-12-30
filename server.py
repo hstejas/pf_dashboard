@@ -112,7 +112,7 @@ def extrapolate_balance_for_provident_fund(accounts, balance_df, samples=12):
 
 
 def extrapolate_balance(accounts, balance_df, samples=12):
-    if len(balance_df) <= samples:
+    if len(balance_df) <= samples or balance_df["balance"][-samples:].isna().any():
         return None
     if "PPF" in accounts:
         return extrapolate_balance_for_provident_fund(accounts, balance_df, samples)
