@@ -6,6 +6,7 @@ from playhouse.flask_utils import FlaskDB
 from pf.plugins.utils import log
 from numpy import nan, polyfit
 import io
+import os
 import zipfile
 from importlib import import_module
 import glob
@@ -15,7 +16,10 @@ import hashlib
 
 
 def create_app():
-    DATABASE = "pf.db"
+    db_dir = Path("db")
+    if not db_dir.exists():
+        db_dir.mkdir()
+    DATABASE = "db/pf.db"
     app = Flask(__name__)
     peewee_db = init_db(DATABASE)
     FlaskDB(app, peewee_db)

@@ -6,5 +6,7 @@ node_modules
 static/dist
 package-lock.json
 .parcel-cache
+.git
 .vscode
 db/
+.pytest_cache

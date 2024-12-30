@@ -2,9 +2,7 @@
 import "bulma"
 import AccountRow from "./AccountRow.vue"
 import ImportFileModal from "./ImportFileModal.vue"
-import {ref} from "vue"
-
-const importFileModalRef = ref()
+import { url_for } from "../utils/base_path.js"
 
 export default {
     components: {
@@ -18,12 +16,13 @@ export default {
         }
     },
     methods: {
+        url_for,
         load_account_details() {
-            fetch("/api/accounts/")
-            .then((resp) => resp.json())
-            .then((data) => {
-                this.accounts = data;
-            })
+            fetch(url_for("/api/accounts/"))
+                .then((resp) => resp.json())
+                .then((data) => {
+                    this.accounts = data;
+                })
         }
     },
     mounted() {
@@ -35,11 +34,12 @@ export default {
 
 
 <template>
-    <ImportFileModal :is_active="import_file_modal_active" @close="import_file_modal_active = false" @refresh="load_account_details"></ImportFileModal>
+    <ImportFileModal :is_active="import_file_modal_active" @close="import_file_modal_active = false"
+        @refresh="load_account_details"></ImportFileModal>
     <div class="section">
         <div>
             <div class="buttons has-addons">
-                <a class="button is-primary" href="/">
+                <a class="button is-primary" :href="url_for('/')">
                     <span class="icon">
                         <i class="fas fa-home"></i>
                     </span>
@@ -56,7 +56,7 @@ export default {
                     </span>
                 </a>
 
-                <a class="button" href="/api/statements">
+                <a class="button" :href="url_for('/api/statements')">
                     <span class="icon">
                         <i class="fas fa-download"></i>
                     </span>
@@ -72,7 +72,7 @@ export default {
                         Import Statement Bundle
                     </span>
                 </a>
-                <a class="button is-danger" href="/api/reset">
+                <a class="button is-danger" :href="url_for('/api/reset')">
                     <span class="icon">
                         <i class="fas fa-trash"></i>
                     </span>
@@ -84,7 +84,8 @@ export default {
         </div>
         <div class="section">
             <AccountRow v-for="a in accounts" :bank="a.bank_name" :account_numer="a.account_numer"
-                :name="a.primary_holder" :description="a.description" :statements="a.statements" @refresh="load_account_details">
+                :name="a.primary_holder" :description="a.description" :statements="a.statements"
+                @refresh="load_account_details">
             </AccountRow>
         </div>
     </div>

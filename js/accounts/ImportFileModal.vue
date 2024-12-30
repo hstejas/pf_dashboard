@@ -1,6 +1,7 @@
 <script>
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "bulma"
+import { url_for } from '../utils/base_path';
 
 export default {
     emits: ['close', 'refresh'],
@@ -20,6 +21,7 @@ export default {
         };
     },
     methods: {
+        url_for,
         reset() {
             this.import_plugin = null;
             this.import_files = null;
@@ -45,7 +47,7 @@ export default {
             }).toString();
 
             this.processing = true;
-            fetch("/api/statements/?" + params, {
+            fetch(url_for("/api/statements/?") + params, {
                 method: "PUT",
                 body: this.import_files[0],
             }).then(async (resp) => {
@@ -65,7 +67,7 @@ export default {
         }
     },
     mounted() {
-        fetch("/api/supported/")
+        fetch(url_for("/api/supported/"))
             .then((data) => data.json())
             .then((data) => {
                 this.banks = data;

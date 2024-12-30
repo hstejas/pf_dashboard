@@ -5,6 +5,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import "bulma"
 import AccountDetails from './AccountDetails.vue';
 import SortableTable from './SortableTable.vue';
+import { url_for } from "../utils/base_path.js"
 
 export default {
     components: {
@@ -64,6 +65,7 @@ export default {
         }
     },
     methods: {
+        url_for,
         to_rupee(value) {
             if (value === null) {
                 return null;
@@ -79,7 +81,7 @@ export default {
                 account: this.selected_account.account_number,
                 filters: this.filters
             }).toString();
-            fetch("/api/transactions/?" + params)
+            fetch(url_for("/api/transactions/?") + params)
                 .then((resp) => resp.json())
                 .then((data) => {
                     this.chart.data = {}
@@ -91,7 +93,7 @@ export default {
         }
     },
     mounted() {
-        fetch("/api/accounts/")
+        fetch(url_for("/api/accounts/"))
             .then((resp) => resp.json())
             .then((data) => {
                 this.accounts = data;
@@ -117,7 +119,7 @@ export default {
                             <span class="icon is-left has-text-primary">
                                 <i class="fa-solid fa-circle-user"></i>
                             </span>
-                            <a href="/accounts/">View all accounts</a>
+                            <a :href="url_for('/accounts/')">Manage Accounts</a>
                         </div>
                         <div class="field">
                             <div id="account_details"></div>

@@ -9,19 +9,31 @@
 | ICICI Bank          | SB             | xls    |
 | PhonePe             | UPI            | pdf    |
 
-## Usage
+## Running
 
-### Parsing all data
+### Docker
 
-1. Clone
-2. `pip install -r requirements.txt`
-3. Copy account statements into `./data/<bank>/`, same abbrev as `pf/plugins/*.py`
-4. Create `./data/.passwords`, one password per line.
-5. run `./main.py`
+```
+$ make docker_build
+$ docker run -it --rm -p 8080:8080 pf_dashboard:latest
+```
 
-### Visualizing data
+And then open `http://localhost:8080/pf/` in browser
 
-1. run `make` to install js deps
-2. `./server.py`
-3. open `http://localhost:3000`
 
+### Manual
+
+```
+$ make init
+$ make install
+$ . venv/bin/activate
+$ ./server.py
+```
+And then open `http://localhost:3000/` in browser
+
+### Testing
+
+```
+$ make init
+$ make test
+```
