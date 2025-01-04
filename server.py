@@ -173,10 +173,14 @@ def api_transactions():
             {
                 "label": "credit",
                 "data": gdf["credit"].to_dict(),
+                "borderColor": "Lime",
+                "backgroundColor": "Lime",
             },
             {
                 "label": "debit",
                 "data": gdf["debit"].to_dict(),
+                "borderColor": "Tomato",
+                "backgroundColor": "Tomato",
             },
         ],
         "transactions": table_df.to_dict(orient="records"),
@@ -187,6 +191,8 @@ def api_transactions():
             {
                 "label": "avg balance",
                 "data": balance_df["balance"].to_dict(),
+                "borderColor": "Gold",
+                "backgroundColor": "Gold",
             }
         )
 
@@ -196,6 +202,8 @@ def api_transactions():
                 "label": "balance trend",
                 "data": ep_df["balance"].to_dict(),
                 "borderDash": [1, 5],
+                "borderColor": "orange",
+                "backgroundColor": "Gold",
             }
         )
 
