@@ -157,11 +157,10 @@ def api_transactions():
     group = df.groupby(pd.Grouper(freq="ME"))
     gdf = group[["credit", "debit"]].sum()
     gdf.index = gdf.index.strftime("%Y-%m")
-    balance_df = group[["balance"]].mean()
+    balance_df = group[["balance"]].tail(1)
     balance_df = balance_df.replace(to_replace=nan, value=None)
-
+    balance_df.index = balance_df.index.to_period('M').to_timestamp('M')
     ep_df = extrapolate_balance(accounts, balance_df)
-
     balance_df.index = balance_df.index.strftime("%Y-%m")
 
     table_df = df[["description", "credit", "debit"]]
