@@ -45,14 +45,21 @@ export default {
                         name: 'credit',
                         display_name: "Credit",
                         formatter: (cell) => this.to_rupee(cell),
-                        width: "15%",
+                        width: "12%",
                         align: "right",
                     },
                     {
                         name: 'debit',
                         display_name: "Debit",
                         formatter: (cell) => this.to_rupee(cell),
-                        width: "15%",
+                        width: "12%",
+                        align: "right",
+                    },
+                    {
+                        name: 'balance',
+                        display_name: "Balance",
+                        formatter: (cell) => this.to_rupee(cell),
+                        width: "12%",
                         align: "right",
                     },
                     {
@@ -163,33 +170,10 @@ export default {
             </div>
             <div class="column">
                 <div class="section" v-if="chart.data">
-                    <!-- <canvas ref="myChart"></canvas> -->
                     <Line :data="chart.data" :options="chart.options"></Line>
                 </div>
                 <div class="section" v-if="txn.rows.length > 0">
-                    <!-- <div ref="txnGrid"></div> -->
-                    <!-- <grid v-if="grid.rows" :auto-width="true" :cols="grid.columns" :pagination="true" :rows="grid.rows" :localization="{}" theme="mermaid"
-                        :search="true" :sort="true"></grid> -->
-                    <!-- <table class="table is-bordered is-striped is-fullwidth">
-                        <thead>
-                            <tr>
-                                <th style="width: 10%">Date</th>
-                                <th style="width: 15%">Credit</th>
-                                <th style="width: 15%">Debit</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="row in txn.rows">
-                                <th>{{ row.date }}</th>
-                                <td>{{ to_rupee(row.credit) }}</td>
-                                <td>{{ to_rupee(row.debit) }}</td>
-                                <td>{{ row.description }}</td>
-                            </tr>
-                        </tbody>
-                    </table> -->
                     <SortableTable :columns="txn.columns" :rows="txn.rows"></SortableTable>
-
                 </div>
             </div>
         </div>

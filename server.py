@@ -163,8 +163,8 @@ def api_transactions():
     ep_df = extrapolate_balance(accounts, balance_df)
     balance_df.index = balance_df.index.strftime("%Y-%m")
 
-    table_df = df[["description", "credit", "debit"]]
-    table_df.index = table_df.index.strftime("%Y-%m")
+    table_df = df[["description", "credit", "debit", "balance"]]
+    table_df.index = table_df.index.strftime("%d-%m-%Y")
     table_df = table_df.reset_index()
 
     ret = {
